@@ -1,10 +1,12 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User, { ROLES } from '../models/User.js';
+
 
 const emailreg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonereg = /^\+?[\d\s-]{10,15}$/;
 
+
+const ROLES = ['farmer', 'retailer', 'admin'];
 /**
  * Role-specific signup messages
  */
