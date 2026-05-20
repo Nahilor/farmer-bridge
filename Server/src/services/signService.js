@@ -1,5 +1,6 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
 
 
 const emailreg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,7 +19,7 @@ const message = () => {
  * POST /api/auth/register
  * Handles farmer, retailer, and admin signup
  */
-export const register = async (req, res) => {
+const register = async (req, res) => {
   try {
     const { name, email, phone, password, role } = req.body;
 
@@ -125,4 +126,6 @@ export const register = async (req, res) => {
     });
   }
   };
+
+module.exports = { register };
 
