@@ -6,8 +6,9 @@ const router = express.Router();
 
 // register route should be created here
 
-
+router.post('/register', register);
 // /login route
 router.post("/login", login);
+
 
 export default router;
