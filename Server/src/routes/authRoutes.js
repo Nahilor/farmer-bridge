@@ -1,6 +1,7 @@
 const express = require("express");
 // register controller should be imported here 
 const { login } = require("../controllers/authController");
+const { register } = require("../services/signService");
 
 const router = express.Router();
 
