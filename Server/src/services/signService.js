@@ -7,7 +7,7 @@ const emailreg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonereg = /^\+?[\d\s-]{10,15}$/;
 
 
-const ROLES = ['farmer', 'retailer', 'admin'];
+const ROLES = ['RETAILER', 'FARMER', 'ADMIN'];
 /**
  * Role-specific signup messages
  */
