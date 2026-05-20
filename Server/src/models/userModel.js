@@ -4,11 +4,7 @@ const mongoose = require("mongoose");
 // we will add more on this schema for now i think this is enough for just login purposes
 const userSchema = new mongoose.Schema(
     {
-        firstname: {
-            type: String,
-            required: true 
-        },
-        lastname: {
+        name: {
             type: String,
             required: true 
         },
@@ -17,7 +13,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
-        phonenumber: {
+        phone: {
             type: Number,
             required: true,
             unique: true
