@@ -1,14 +1,14 @@
-const express = requrie("express");
+const express = require("express");
 // register controller should be imported here 
 const { login } = require("../controllers/authController");
 
 const router = express.Router();
 
 // register route should be created here
+// router.post('/register', register);
 
-router.post('/register', register);
-// /login route
+
+// Login route
 router.post("/login", login);
 
-
-export default router;
+module.exports = router;

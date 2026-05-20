@@ -1,8 +1,3 @@
-import {
-  registerUserService,
-  loginUserService
-} from "../services/auth.service.js";
-
 // nebils login Service should be also imported here
 const { loginUserService } = require("../services/authService.js")
 
@@ -10,9 +5,8 @@ const { loginUserService } = require("../services/authService.js")
 // also register controller function should be here
 
 
-
 // This is the login controller
-export const login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const result = await loginUserService(req.body);
     res.status(200).json(result);
@@ -21,3 +15,5 @@ export const login = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+module.exports = { login };
