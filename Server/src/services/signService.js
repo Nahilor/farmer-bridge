@@ -92,13 +92,6 @@ const register = async (req, res) => {
       role: role1,
     });
 
-    // Generate JWT after successful signup
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '3d' }
-    );
-
     const userInfo = {
       id: user._id,
       name: user.name,
