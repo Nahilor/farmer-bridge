@@ -4,9 +4,13 @@ const mongoose = require("mongoose");
 // we will add more on this schema for now i think this is enough for just login purposes
 const userSchema = new mongoose.Schema(
     {
-        name: {
+        firstName: {
             type: String,
-            required: true 
+            required: true
+        },
+        lastName: {
+            type: String,
+            required: true
         },
         email: {
             type: String,
