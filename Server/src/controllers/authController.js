@@ -1,19 +1,31 @@
-// nebils login Service should be also imported here
-const { loginUserService } = require("../services/authService.js")
+const { loginUserService, registerUserService } = require('../services/authService.js');
 
+const register = async (req, res) => {
+  try {
+    const result = await registerUserService(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    if (error.message) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
 
-// also register controller function should be here
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+};
 
-
-// This is the login controller
 const login = async (req, res) => {
   try {
     const result = await loginUserService(req.body);
     res.status(200).json(result);
   } catch (error) {
-    // this should show the error that is thrown from the authService
     res.status(400).json({ message: error.message });
   }
 };
 
-module.exports = { login };
+module.exports = { register, login };
