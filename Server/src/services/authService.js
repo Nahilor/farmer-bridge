@@ -18,7 +18,7 @@ const registerUserService = async (data) => {
     const lastName1 = lastName.trim();
 
     const email1 = email.trim().toLowerCase();
-    const phone1 = phone.trim().replace(/\s/g, '');
+    const phone1 = String(phone).trim().replace(/\s/g, '');
     const address1 = address;
     const role1 = role;
 
@@ -30,7 +30,7 @@ const registerUserService = async (data) => {
         throw new Error('Please enter a valid email address');
     }
 
-    if (!phonereg.test(phone)) {
+    if (!phonereg.test(phone1)) {
         throw new Error('Please enter a valid phone number (10–15 digits)');
     }
 
