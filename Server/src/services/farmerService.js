@@ -30,6 +30,10 @@ const getProducts = async (userId) => {
 const getProductById = async (userId, productId) => {
     const farmer = await User.findById(userId);
 
+    if (!farmer) {
+        throw new Error("Farmer not found");
+    }
+
     const product = farmer.products.id(productId);
 
     if (!product) {
@@ -42,6 +46,10 @@ const getProductById = async (userId, productId) => {
 // Update product
 const updateProduct = async (userId, productId, updateData) => {
     const farmer = await User.findById(userId);
+
+    if (!farmer) {
+        throw new Error("Farmer not found");
+    }
 
     const product = farmer.products.id(productId);
 
@@ -59,6 +67,10 @@ const updateProduct = async (userId, productId, updateData) => {
 // Delete product
 const deleteProduct = async (userId, productId) => {
     const farmer = await User.findById(userId);
+
+    if (!farmer) {
+        throw new Error("Farmer not found");
+    }
 
     const product = farmer.products.id(productId);
 
