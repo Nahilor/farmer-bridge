@@ -3,8 +3,8 @@ const dotenv = require('dotenv');
 const connectDB = require('./src/config/db');
 const authRoutes = require("./src/routes/authRoutes.js")
 const adminRoutes = require("./src/routes/adminRoutes.js")
-
-
+const farmerRoutes = require("./src/routes/farmerRoutes.js");
+const farmerOrderRoutes = require("./src/routes/farmerOrderRoutes");
 dotenv.config();
 
 const app = express();
@@ -14,8 +14,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes); // this is expected to add the register and login route like this: 
 // /api/auth/login & /api/auth/register with POST method
 app.use("/api/admin", adminRoutes)
-
-
+app.use("/api/farmer", farmerRoutes);
+app.use("/api/farmer", farmerOrderRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
