@@ -55,9 +55,17 @@ const FarmerDashboard = () => {
       const activeProducts = products.filter(p => p.status === 'active' || !p.status).length;
       const pendingOrders = orders.filter(o => o.status === 'PENDING').length;
       const completedOrders = orders.filter(o => o.status === 'DELIVERED').length;
+      const getOrderTotal = (o) => {
+        if (o.totalPrice) return Number(o.totalPrice) || 0;
+        if (Array.isArray(o.items) && o.items.length) {
+          return o.items.reduce((s, it) => s + (Number(it.totalPrice) || (Number(it.quantity) * (Number(it.pricePerUnit) || 0)) || 0), 0);
+        }
+        return 0;
+      };
+
       const totalEarnings = orders
         .filter(o => o.status === 'DELIVERED')
-        .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+        .reduce((sum, o) => sum + getOrderTotal(o), 0);
 
       setStats({
         totalProducts: products.length,
@@ -174,7 +182,7 @@ const FarmerDashboard = () => {
               <div className="text-3xl">⏳</div>
             </div>
             <div className="mt-2">
-              <Link to="/farmer/orders" className="text-blue-600 text-sm hover:underline">
+              <Link to="/farmer/orders?status=PENDING" className="text-blue-600 text-sm hover:underline">
                 View all →
               </Link>
             </div>
@@ -258,7 +266,7 @@ const FarmerDashboard = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">#{order._id?.slice(-6)}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order.productName}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order.quantity} kg</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">ETB {order.totalPrice?.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">ETB {(Number(order.totalPrice) || (order.items && order.items.length ? order.items.reduce((s,it)=> s + (Number(it.totalPrice) || (Number(it.quantity)*(Number(it.pricePerUnit)||0))||0),0) : 0)).toLocaleString()}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :

@@ -48,9 +48,20 @@ const AdminDashboard = () => {
         console.error('Error fetching orders:', err);
       }
 
-      const totalRevenue = orders
-        .filter(o => String(o.status || '').toUpperCase() === 'DELIVERED')
-        .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+        // Ensure we have readable farmerName and retailerName for the UI by checking multiple shapes
+        const mappedOrders = orders.map(o => {
+          const farmerObj = o.farmer || o.farmerId || o.farmer || null;
+          const retailerObj = o.retailer || o.retailerId || null;
+
+          const farmerName = o.farmerName || (farmerObj ? (farmerObj.businessName || `${farmerObj.firstName || ''} ${farmerObj.lastName || ''}`.trim()) : undefined);
+          const retailerName = o.retailerName || (retailerObj ? (retailerObj.businessName || `${retailerObj.firstName || ''} ${retailerObj.lastName || ''}`.trim()) : undefined);
+
+          return { ...o, farmerName, retailerName };
+        });
+
+        const totalRevenue = mappedOrders
+          .filter(o => String(o.status || '').toUpperCase() === 'DELIVERED')
+          .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
       setStats({
         totalFarmers: farmers.length,
@@ -63,8 +74,8 @@ const AdminDashboard = () => {
         totalRevenue: totalRevenue
       });
 
-      setRecentUsers(users.slice(0, 5));
-      setRecentOrders(orders.slice(0, 5));
+  setRecentUsers(users.slice(0, 5));
+  setRecentOrders(mappedOrders.slice(0, 5));
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -275,7 +286,7 @@ const AdminDashboard = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">#{order._id?.slice(-6)}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{order.farmerName || 'Farmer'}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{order.retailerName || 'Retailer'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">ETB {order.totalPrice?.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">ETB {(Number(order.totalPrice) || (order.items && order.items[0] && Number(order.items[0].totalPrice)) || 0).toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :

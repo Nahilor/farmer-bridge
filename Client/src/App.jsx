@@ -26,6 +26,8 @@ import UserManagement from './pages/Admin/UserManagement';
 import Help from './pages/Help'
 import Contact from './pages/Contact'
 
+import Report from './pages/Admin/Reports'
+
 import About from './pages/About'
 
 function AppContent() {
@@ -119,6 +121,17 @@ function AppContent() {
         <Route path="/admin/users" element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <UserManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/farmer/orders" element={
+          <ProtectedRoute allowedRoles={['FARMER']}>
+            <OrdersReceived />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin/reports" element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <Report />
           </ProtectedRoute>
         } />
         </Routes>

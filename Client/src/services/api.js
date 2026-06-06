@@ -320,7 +320,26 @@ export const api = {
       headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Failed to fetch orders');
+    if (!response.ok) throw new Error(data.message || JSON.stringify(data) || 'Failed to fetch orders');
+    return data;
+  },
+
+  // Create order (retailer placing a request to a farmer)
+  createOrder: async (orderPayload) => {
+    const token = api.getToken();
+    const response = await fetch(`${API_URL}/retailer/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(orderPayload),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      // surface server message when available
+      throw new Error(data.message || JSON.stringify(data) || 'Failed to create order');
+    }
     return data;
   },
 
@@ -418,24 +437,6 @@ export const api = {
       return data;
     },
 
-    createOrder: async (orderData) => {
-    const token = api.getToken();
-    const response = await fetch(`${API_URL}/retailer/orders`, {  // ✅ Note: /api/retailer/orders
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(orderData),
-    });
-    
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to create order');
-    }
-    return data;
-  },
-
-
+  // end of api object
 };
 

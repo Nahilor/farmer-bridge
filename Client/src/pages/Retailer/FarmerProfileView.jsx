@@ -36,8 +36,9 @@ const FarmerProfileView = () => {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    if (!orderQuantity || orderQuantity <= 0) {
-      alert('Please enter a valid quantity');
+    const q = Number(orderQuantity);
+    if (!isFinite(q) || q <= 0) {
+      alert('Please enter a valid quantity (number > 0)');
       return;
     }
 
@@ -50,10 +51,11 @@ const FarmerProfileView = () => {
           {
             productId: selectedProduct._id,
             productName: selectedProduct.name,
-            quantity: Number(orderQuantity),
+            quantity: q,
+            unit: selectedProduct.unit,
             pricePerUnit: selectedProduct.pricePerUnit,
-            totalPrice: Number(orderQuantity) * selectedProduct.pricePerUnit,
-            message: orderMessage
+            totalPrice: q * (selectedProduct.pricePerUnit || 0),
+            message: orderMessage,
           }
         ]
       });
@@ -65,7 +67,8 @@ const FarmerProfileView = () => {
       setOrderMessage('');
     } catch (err) {
       console.error('Error placing order:', err);
-      alert('Failed to place order. Please try again.');
+      // err.message should include server-provided message where available
+      alert(err.message || 'Failed to place order. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -167,7 +170,8 @@ const FarmerProfileView = () => {
                   value={orderQuantity}
                   onChange={(e) => setOrderQuantity(e.target.value)}
                   required
-                  step="0.01"
+                  step="1"
+                  min="1"
                   max={selectedProduct.quantity}
                   className="w-full px-4 py-2 border rounded-lg"
                   placeholder={`Max ${selectedProduct.quantity} ${selectedProduct.unit}`}

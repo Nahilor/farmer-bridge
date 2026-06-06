@@ -103,7 +103,7 @@ const MyOrders = () => {
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Total</p>
-                      <p className="font-semibold text-green-600">ETB {order.totalPrice?.toLocaleString()}</p>
+                      <p className="font-semibold text-green-600">ETB {(Number(order.totalPrice) || (order.items && order.items[0] && Number(order.items[0].totalPrice)) || 0).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
