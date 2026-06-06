@@ -1,8 +1,8 @@
 const User = require("../models/userModel");
 
-// Get all users
-const getAllUsers = async () => {
-    return await User.find()
+// Get all users (optional filter)
+const getAllUsers = async (filter = {}) => {
+    return await User.find(filter)
         .select("-password")
         .sort({ createdAt: -1 });
 };
@@ -24,7 +24,8 @@ const updateUserStatus = async (userId, status) => {
     const allowedStatuses = [
         "PENDING_VERIFICATION",
         "ACTIVE",
-        "SUSPENDED"
+        "SUSPENDED",
+        "REJECTED"
     ];
 
     if (!allowedStatuses.includes(status)) {

@@ -9,7 +9,7 @@ const getFarmers = async (req, res) => {
       .select(farmerSelect)
       .sort({ createdAt: -1 });
 
-    res.json({ farmers });
+  res.json({ success: true, data: farmers });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -35,7 +35,7 @@ const getPopularFarmers = async (req, res) => {
       },
     ]);
 
-    res.json({ farmers });
+  res.json({ success: true, data: farmers });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -55,7 +55,7 @@ const getFarmerById = async (req, res) => {
       return res.status(404).json({ message: "Farmer not found" });
     }
 
-    res.json({ farmer });
+  res.json({ success: true, data: farmer });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

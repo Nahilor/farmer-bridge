@@ -83,16 +83,35 @@ const registerUserService = async (data) => {
 };
 
 const loginUserService = async (data) => {
-    const { email, password } = data;
+    // Accept either phone or email for login
+    const { phone, email, password } = data;
 
-    const user = await User.findOne({ email });
+    let query = {};
+    if (phone) {
+        // normalize phone by removing spaces and +
+        const phoneStr = String(phone).replace(/\s/g, '').replace(/\+/g, '');
+        // Prefer numeric lookup, but some records might have phone stored as string
+        const phoneNum = Number(phoneStr);
+        if (!Number.isNaN(phoneNum)) {
+            // try numeric phone first
+            query.$or = [{ phone: phoneNum }, { phone: phoneStr }];
+        } else {
+            query.phone = phoneStr;
+        }
+    } else if (email) {
+        query.email = String(email).trim().toLowerCase();
+    } else {
+        throw new Error('Please provide phone or email and password');
+    }
+
+    const user = await User.findOne(query).lean();
     if (!user) {
-        throw new Error('User not found.');
+        throw new Error('User not found');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        throw new Error('User exists but the password passed is incorrect.');
+        throw new Error('Invalid credentials');
     }
 
     const token = jwt.sign(
@@ -104,7 +123,10 @@ const loginUserService = async (data) => {
         { expiresIn: '1d' }
     );
 
-    return { user, token };
+    // sanitize returned user (remove password)
+    const { password: _pw, __v, ...sanitizedUser } = user;
+
+    return { user: sanitizedUser, token };
 };
 
 module.exports = { loginUserService, registerUserService };

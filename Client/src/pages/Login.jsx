@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -7,8 +7,11 @@ const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  // Initialize phone from localStorage to avoid setState in effect
+  const initialPhone = typeof window !== 'undefined' ? (localStorage.getItem('rememberedPhone') || '') : '';
   const [formData, setFormData] = useState({
-    phone: '',
+    phone: initialPhone,
     password: '',
     rememberMe: false
   });
@@ -26,7 +29,7 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    // Validation
+    // Basic validation
     if (!formData.phone || !formData.password) {
       setError('Please enter both phone number and password');
       setLoading(false);
@@ -34,46 +37,37 @@ const Login = () => {
     }
 
     try {
+      // Make sure phone number is clean (remove any spaces)
+      const cleanPhone = formData.phone.trim();
+      
       const response = await api.login({
-        phone: formData.phone,
+        phone: cleanPhone,
         password: formData.password
       });
       
       console.log('Login Response:', response);
       
-      // Expected JSON response:
-      // {
-      //   success: true,
-      //   message: "Login successful",
-      //   token: "eyJhbGciOiJIUzI1NiIs...",
-      //   user: {
-      //     _id: "60d5f9f8b8e5a8b6a8e5a8b6",
-      //     name: "John Doe",
-      //     phone: "0912345678",
-      //     role: "farmer", // or "retailer" or "admin"
-      //     status: "active", // or "pending" or "suspended"
-      //     location: {...},
-      //     ...
-      //   }
-      // }
-      
-      // Store token (already done in api.login)
-      if (response.rememberMe || formData.rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
+      // Handle remember me
+      if (formData.rememberMe) {
+        localStorage.setItem('rememberedPhone', cleanPhone);
+      } else {
+        localStorage.removeItem('rememberedPhone');
       }
       
-      // Redirect based on user role and status
-      const { user } = response;
+      // Extract user from response (adjust based on your actual response structure)
+      const { user, token } = response;
       
-      // Check if user is approved
+      // Store token and user data
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      
+      // Check account status
       if (user.status === 'pending') {
-        setError('Your account is pending admin approval. You will receive an SMS when approved.');
-        setLoading(false);
-        return;
-      }
-      
-      if (user.status === 'suspended') {
-        setError('Your account has been suspended. Please contact admin for more information.');
+        setError('Your account is pending admin approval. You will be notified via SMS once approved.');
         setLoading(false);
         return;
       }
@@ -84,15 +78,21 @@ const Login = () => {
         return;
       }
       
+      if (user.status === 'suspended') {
+        setError('Your account has been suspended. Please contact admin for more information.');
+        setLoading(false);
+        return;
+      }
+      
       // Redirect based on role
       switch(user.role) {
-        case 'farmer':
+        case 'FARMER':
           navigate('/farmer/dashboard');
           break;
-        case 'retailer':
+        case 'RETAILER':
           navigate('/retailer/dashboard');
           break;
-        case 'admin':
+        case 'ADMIN':
           navigate('/admin/dashboard');
           break;
         default:
@@ -101,10 +101,14 @@ const Login = () => {
       
     } catch (err) {
       console.error('Login Error:', err);
+      
+      // Handle specific error messages
       if (err.message === 'Invalid credentials') {
-        setError('Invalid phone number or password');
+        setError('Invalid phone number or password. Please try again.');
       } else if (err.message === 'User not found') {
-        setError('No account found with this phone number');
+        setError('No account found with this phone number. Please register first.');
+      } else if (err.message.includes('Network')) {
+        setError('Network error. Please check your connection.');
       } else {
         setError(err.message || 'Login failed. Please try again.');
       }
@@ -139,7 +143,6 @@ const Login = () => {
               value={formData.phone}
               onChange={handleChange}
               required
-              pattern="[0-9]{10}"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="09XXXXXXXX"
               autoComplete="username"
@@ -151,26 +154,44 @@ const Login = () => {
             <label className="block text-gray-700 font-semibold mb-2">
               Password
             </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your password"
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <label className="flex items-center space-x-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
                 name="rememberMe"
                 checked={formData.rememberMe}
                 onChange={handleChange}
-                className="w-4 h-4 text-green-600 rounded"
+                className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
               />
               <span className="text-sm text-gray-600">Remember me</span>
             </label>
@@ -201,8 +222,8 @@ const Login = () => {
           <div className="text-center space-y-2">
             <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link to="/" className="text-green-600 hover:underline">
-                Choose your role
+              <Link to="/" className="text-green-600 hover:underline font-semibold">
+                Register here
               </Link>
             </p>
             <p className="text-xs text-gray-500 mt-4">
@@ -210,6 +231,19 @@ const Login = () => {
             </p>
           </div>
         </form>
+
+        {/* Demo credentials for testing */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-xs text-gray-600 font-semibold mb-2">Demo Credentials (Testing only):</p>
+          <div className="space-y-1 text-xs text-gray-500">
+            <p>👨‍🌾 <span className="font-medium">Farmer:</span> 0912345678 / password123</p>
+            <p>🏪 <span className="font-medium">Retailer:</span> 0987654321 / password123</p>
+            <p>👨‍💼 <span className="font-medium">Admin:</span> 0911111111 / admin123</p>
+          </div>
+          <p className="text-xs text-yellow-600 mt-2">
+            ⚠️ Use these for testing. In production, these will be removed.
+          </p>
+        </div>
       </div>
     </div>
   );

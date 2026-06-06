@@ -1,5 +1,4 @@
 // src/components/layout/Footer.jsx
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export const Footer = () => {
@@ -45,7 +44,7 @@ export const Footer = () => {
               <li><Link to="/" className="text-gray-400 hover:text-white transition">Home</Link></li>
               <li><Link to="/about" className="text-gray-400 hover:text-white transition">About Us</Link></li>
               <li><Link to="/contact" className="text-gray-400 hover:text-white transition">Contact</Link></li>
-              <li><Link to="/faq" className="text-gray-400 hover:text-white transition">FAQ</Link></li>
+              <li><Link to="/help" className="text-gray-400 hover:text-white transition">FAQ</Link></li>
             </ul>
           </div>
 
@@ -56,7 +55,7 @@ export const Footer = () => {
               <li><Link to="/register/farmer" className="text-gray-400 hover:text-white transition">Join as Farmer</Link></li>
               <li><Link to="/register/retailer" className="text-gray-400 hover:text-white transition">Join as Retailer</Link></li>
               <li><Link to="/login" className="text-gray-400 hover:text-white transition">Login</Link></li>
-              <li><Link to="/how-it-works" className="text-gray-400 hover:text-white transition">How It Works</Link></li>
+              <li><Link to="/about" className="text-gray-400 hover:text-white transition">How It Works</Link></li>
             </ul>
           </div>
 

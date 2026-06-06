@@ -1,5 +1,5 @@
 // src/components/layout/Header.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../services/api';
 
@@ -20,8 +20,11 @@ export const Header = () => {
       if (token && user) {
         setIsAuthenticated(true);
         const userData = JSON.parse(user);
-        setUserRole(userData.role);
-        setUserName(userData.fullName || userData.businessName || userData.ownerName || 'User');
+        // normalize role to uppercase to match server enums
+        setUserRole(String(userData.role || '').toUpperCase());
+        // derive a friendly display name from available fields
+        const display = userData.firstName && userData.lastName ? `${userData.firstName} ${userData.lastName}` : (userData.businessName || userData.fullName || userData.ownerName || 'User');
+        setUserName(display);
       } else {
         setIsAuthenticated(false);
         setUserRole(null);
@@ -42,20 +45,6 @@ export const Header = () => {
     setUserRole(null);
     setUserName('');
     navigate('/login');
-  };
-
-  // Get dashboard link based on role
-  const getDashboardLink = () => {
-    switch(userRole) {
-      case 'farmer':
-        return '/farmer/dashboard';
-      case 'retailer':
-        return '/retailer/dashboard';
-      case 'admin':
-        return '/admin/dashboard';
-      default:
-        return '/';
-    }
   };
 
   // Get role display name
@@ -90,11 +79,7 @@ export const Header = () => {
               Home
             </Link>
             
-            {isAuthenticated && (
-              <Link to={getDashboardLink()} className="text-gray-700 hover:text-green-600 transition">
-                Dashboard
-              </Link>
-            )}
+            {isAuthenticated}
             
             <Link to="/about" className="text-gray-700 hover:text-green-600 transition">
               About
@@ -119,9 +104,6 @@ export const Header = () => {
                 
                 {/* Dropdown Menu */}
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden group-hover:block">
-                  <Link to={getDashboardLink()} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    Dashboard
-                  </Link>
                   <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                     My Profile
                   </Link>
@@ -184,7 +166,7 @@ export const Header = () => {
               
               {isAuthenticated && (
                 <Link 
-                  to={getDashboardLink()} 
+                  to='/farmer/dashboard' 
                   className="text-gray-700 hover:text-green-600 py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -218,13 +200,6 @@ export const Header = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Profile
-                  </Link>
-                  <Link 
-                    to="/settings" 
-                    className="text-gray-700 hover:text-green-600 py-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Settings
                   </Link>
                   <button 
                     onClick={() => {

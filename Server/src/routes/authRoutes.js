@@ -5,7 +5,8 @@ const { login, register } = require("../controllers/authController");
 const router = express.Router();
 
 router.post('/register', register);
-router.get("/login", login);
+// use POST for login so request body is available and aligns with client
+router.post('/login', login);
 
 
 

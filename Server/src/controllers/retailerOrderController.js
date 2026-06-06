@@ -43,7 +43,13 @@ const createOrder = async (req, res) => {
       return res.status(404).json({ message: "Farmer not found" });
     }
 
-    const farmerProducts = (farmer.products || []).map((p) => p.productName.toLowerCase());
+    const farmerProducts = (farmer.products || []).map((p) => {
+      if (!p) return '';
+      if (typeof p === 'string') return p.toLowerCase();
+      // handle product object shapes: prefer productName, fall back to name
+      const name = p.productName || p.name || '';
+      return String(name).toLowerCase();
+    });
     for (const item of items) {
       if (!farmerProducts.includes(item.productName.trim().toLowerCase())) {
         return res.status(400).json({
